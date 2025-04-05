@@ -1,8 +1,20 @@
-<?php foreach ($users as $user): ?>
-  <div>
-    <?= $user->login ?> | <?= $user->email ?>
-    <a href="/serwis_samochodowy/public/index.php?action=changeRole&id=<?= $user->idUser ?>&role=mechanik">Ustaw jako mechanik</a> |
-    <a href="/serwis_samochodowy/public/index.php?action=changeRole&id=<?= $user->idUser ?>&role=klient">Ustaw jako klient</a>
-    <hr>
-  </div>
-<?php endforeach; ?>
+
+<ul>
+{foreach $users as $user}
+    <li>{$user['name']} - {$user['email']}</li>
+{/foreach}
+</ul>
+
+<div class="pagination">
+{if $currentPage > 1}
+    <a href="?page={$currentPage-1}">Poprzednia</a>
+{/if}
+
+{for $i=1 to $totalPages}
+    <a href="?page={$i}" {if $currentPage == $i}class="active"{/if}>{$i}</a>
+{/for}
+
+{if $currentPage < $totalPages}
+    <a href="?page={$currentPage+1}">Następna</a>
+{/if}
+</div>

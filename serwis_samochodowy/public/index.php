@@ -1,62 +1,20 @@
+
 <?php
-session_start();
 
-require '../app/core/Config.class.php';
-require '../app/core/App.class.php';
-require '../app/controllers/AuthCtrl.class.php';
-require '../app/controllers/ClientCtrl.class.php';
-require '../app/controllers/MechanicCtrl.class.php';
-require '../app/controllers/AdminCtrl.class.php';
+$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// Akcje (POST/GET)
-$action = $_GET['action'] ?? '';
-if ($action === 'register') {
-    (new AuthCtrl())->registerUser();
-    exit;
-}
-if ($action === 'login') {
-    (new AuthCtrl())->loginUser();
-    exit;
-}
-if ($action === 'addAppointment') {
-    (new ClientCtrl())->addAppointment();
-    exit;
-}
-if ($action === 'updateStatus') {
-    (new MechanicCtrl())->updateStatus();
-    exit;
-}
-if ($action === 'changeRole') {
-    (new AdminCtrl())->changeRole();
-    exit;
-}
-
-// Widoki (GET)
-$page = $_GET['page'] ?? '';
-switch ($page) {
-    case 'register':
-        include '../app/views/auth/register.php';
-        break;
-
-    case 'login':
-        include '../app/views/auth/login.php';
-        break;
-
-    case 'logout':
-        session_destroy();
-        header("Location: /serwis_samochodowy/public/index.php");
-        break;
-
-    case 'new_appointment':
-        include '../app/views/client/new_appointment.php';
-        break;
-
-    case 'my_appointments':
+switch($action){
+    case 'admin_users':
         $db = App::getDB();
-        $stmt = $db->prepare("SELECT * FROM Appointment WHERE idUser = ?");
-        $stmt->execute([$_SESSION['user']->idUser]);
-        $appointments = $stmt->fetchAll(PDO::FETCH_OBJ);
-        include '../app/views/client/my_appointments.php';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        $stmt = $db->prepare("SELECT * FROM User LIMIT :limit OFFSET :offset");
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $users = $stmt->fetchAll(PDO::FETCH_OBJ);
+        include '../app/views/admin/users.php';
         break;
 
     case 'mechanic_appointments':
@@ -66,25 +24,28 @@ switch ($page) {
         include '../app/views/mechanic/appointments.php';
         break;
 
-    case 'admin_users':
+    case 'my_appointments':
+        session_start();
         $db = App::getDB();
-        $stmt = $db->query("SELECT * FROM User");
-        $users = $stmt->fetchAll(PDO::FETCH_OBJ);
-        include '../app/views/admin/users.php';
+        $stmt = $db->prepare("SELECT * FROM Appointment WHERE idUser = ?");
+        $stmt->execute([$_SESSION['user']->idUser]);
+        $appointments = $stmt->fetchAll(PDO::FETCH_OBJ);
+        include '../app/views/client/my_appointments.php';
+        break;
+
+    case 'new_appointment':
+        include '../app/views/client/new_appointment.php';
+        break;
+        
+    case 'login':
+        include '../app/views/auth/login.php';
+        break;
+
+    case 'register':
+        include '../app/views/auth/register.php';
         break;
 
     default:
-        if (isset($_SESSION['user'])) {
-            echo "Witaj, " . htmlspecialchars($_SESSION['user']->login) . "!<br><br>";
-            echo "<a href='?page=my_appointments'>Moje wizyty</a><br>";
-            echo "<a href='?page=new_appointment'>Zarezerwuj wizytę</a><br>";
-            echo "<a href='?page=mechanic_appointments'>Panel mechanika</a><br>";
-            echo "<a href='?page=admin_users'>Panel administratora</a><br>";
-            echo "<a href='?page=logout'>Wyloguj się</a><br>";
-        } else {
-            echo "Aplikacja Amelia gotowa do działania! Wybierz akcję: <br><br>";
-            echo "<a href='?page=register'>Rejestracja</a><br>";
-            echo "<a href='?page=login'>Logowanie</a><br>";
-        }
+        include '../app/views/auth/start.php';
         break;
 }
