@@ -1,0 +1,1 @@
+Funkcjonalność stronicowania została zaimplementowana w kontrolerach TransactionControllers.class oraz SortingControllers.class, a także w odpowiadających im widokach: transactions.tpl oraz sorting.tpl.
