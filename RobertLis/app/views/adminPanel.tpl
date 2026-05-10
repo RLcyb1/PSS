@@ -31,7 +31,7 @@
     {if $user.nazwa_roli != 'admin'}
         <form method="post">
             <input type="hidden" name="delete_user_id" value="{$user.id}">
-            <button type="submit" class="btn btn-danger">Usuń</button>
+            <button type="submit" class="btn btn-danger">Usuń użytkownika</button>
         </form>
     {/if}
 </td>
@@ -42,7 +42,7 @@
                             <button type="submit" class="btn btn-primary">Nadaj Admina</button>
                         </form>
                     {else}
-                        <a>Administrator</a>
+                        <a>Admin</a>
                     {/if}
                 </td>
             </tr>

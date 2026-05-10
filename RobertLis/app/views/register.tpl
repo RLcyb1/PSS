@@ -16,9 +16,16 @@
     {/foreach}
 
     <form method="POST">
-        <label>Email: <input type="email" name="email" value="{$email|escape}" required></label><br>
-        <label>Hasło: <input type="password" name="password" required></label><br>
-        <label>Powtórz hasło: <input type="password" name="confirm_password" required></label><br>
-        <button type="submit">Zarejestruj się</button>
+        <div class="mb-3">
+        <label class="form-label">Email: <input type="email" name="email" value="{$email|escape}" class="form-control" required></label><br>
+        </div>
+        <div class="mb-3">
+        <label class="form-label">Hasło: <input type="password" name="password" class="form-control" required></label><br>
+        </div>
+        <div class="mb-3">
+        <label class="form-label">Powtórz hasło: <input type="password" name="confirm_password" class="form-control" required></label><br>
+        </div>
+        <button type="submit" class="btn btn-primary" >Zarejestruj się</button>
+        
     </form>
 {/block}

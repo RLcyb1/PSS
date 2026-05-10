@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.3.4, created on 2026-03-28 13:51:55
+/* Smarty version 4.3.4, created on 2026-05-10 16:01:19
   from 'C:\xampp\htdocs\RobertLis\app\views\login.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.3.4',
-  'unifunc' => 'content_69c7ceeb4ca149_74841552',
+  'unifunc' => 'content_6a008faf2f2594_94982197',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '50c4fb5d2e9729ea0e1c0b219b99a92eb3d02f35' => 
     array (
       0 => 'C:\\xampp\\htdocs\\RobertLis\\app\\views\\login.tpl',
-      1 => 1774698648,
+      1 => 1775328820,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_69c7ceeb4ca149_74841552 (Smarty_Internal_Template $_smarty_tpl) {
+function content_6a008faf2f2594_94982197 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_loadInheritance();
 $_smarty_tpl->inheritance->init($_smarty_tpl, true);
 ?>
@@ -28,23 +28,23 @@ $_smarty_tpl->inheritance->init($_smarty_tpl, true);
 
 
 <?php 
-$_smarty_tpl->inheritance->instanceBlock($_smarty_tpl, 'Block_149679011269c7ceeb22ec23_74576463', "title");
+$_smarty_tpl->inheritance->instanceBlock($_smarty_tpl, 'Block_5792892276a008faf2e3151_98685464', "title");
 ?>
 
 
 <?php 
-$_smarty_tpl->inheritance->instanceBlock($_smarty_tpl, 'Block_116275940569c7ceeb22fb26_98930980', "content");
+$_smarty_tpl->inheritance->instanceBlock($_smarty_tpl, 'Block_5729371286a008faf2e3d06_19086811', "content");
 ?>
 
 <?php $_smarty_tpl->inheritance->endChild($_smarty_tpl, "main.tpl");
 }
 /* {block "title"} */
-class Block_149679011269c7ceeb22ec23_74576463 extends Smarty_Internal_Block
+class Block_5792892276a008faf2e3151_98685464 extends Smarty_Internal_Block
 {
 public $subBlocks = array (
   'title' => 
   array (
-    0 => 'Block_149679011269c7ceeb22ec23_74576463',
+    0 => 'Block_5792892276a008faf2e3151_98685464',
   ),
 );
 public function callBlock(Smarty_Internal_Template $_smarty_tpl) {
@@ -54,12 +54,12 @@ Logowanie<?php
 }
 /* {/block "title"} */
 /* {block "content"} */
-class Block_116275940569c7ceeb22fb26_98930980 extends Smarty_Internal_Block
+class Block_5729371286a008faf2e3d06_19086811 extends Smarty_Internal_Block
 {
 public $subBlocks = array (
   'content' => 
   array (
-    0 => 'Block_116275940569c7ceeb22fb26_98930980',
+    0 => 'Block_5729371286a008faf2e3d06_19086811',
   ),
 );
 public function callBlock(Smarty_Internal_Template $_smarty_tpl) {
@@ -85,10 +85,14 @@ $_smarty_tpl->tpl_vars['msg']->do_else = false;
 $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?>
 
     <form method="POST">
-        <label>Email: <input type="email" name="email" value="<?php echo htmlspecialchars((string)$_smarty_tpl->tpl_vars['email']->value, ENT_QUOTES, 'UTF-8', true);?>
-" required></label><br>
-        <label>Hasło: <input type="password" name="password" required></label><br>
-        <button type="submit">Zaloguj</button>
+         <div class="mb-3">
+        <label class="form-label">Email: <input type="email" name="email" value="<?php echo htmlspecialchars((string)$_smarty_tpl->tpl_vars['email']->value, ENT_QUOTES, 'UTF-8', true);?>
+" class="form-control" required></label><br>
+         </div>
+          <div class="mb-3">
+        <label class="form-label">Hasło: <input type="password" name="password" class="form-control" required></label><br>
+          </div>
+        <button type="submit" class="btn btn-primary">Zaloguj</button>
     </form>
 <?php
 }

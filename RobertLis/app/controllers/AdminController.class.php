@@ -13,7 +13,7 @@ class AdminController {
 
         if (!$userId) {
             App::getMessages()->addMessage(new Message("Nie jesteś zalogowany.", Message::ERROR));
-            App::getRouter()->redirectTo('login');
+            App::getRouter()->redirectTo('home');
             return;
         }
 
@@ -21,7 +21,7 @@ class AdminController {
         $roleId = App::getDB()->get('role_uzytkownikow', 'rola_id', ['uzytkownik_id' => $userId]);
         if ($roleId != 1) {
             App::getMessages()->addMessage(new Message("Brak dostępu. Tylko administratorzy mają dostęp do tego panelu.", Message::ERROR));
-            App::getRouter()->redirectTo('transactions');
+            App::getRouter()->redirectTo('home');
             return;
         }
 
@@ -53,7 +53,7 @@ public function action_promoteToAdmin() {
     // Sprawdzenie, czy użytkownik jest zalogowany
     if (!isset($_SESSION['user']['id'])) {
         App::getMessages()->addMessage(new Message("Nie jesteś zalogowany.", Message::ERROR));
-        App::getRouter()->redirectTo('login');
+        App::getRouter()->redirectTo('home');
         return;
     }
 
@@ -92,6 +92,50 @@ if (!$existingRole) {
     // Przekierowanie z powrotem do panelu admina
     App::getRouter()->redirectTo('adminPanel');
 }
+public function action_adminChangePassword() {
+        $adminRoleId = 1;  
+        $currentUser = $_SESSION['user'] ?? null;
 
+        // Sprawdzenie, czy użytkownik ma rolę administratora
+        if (!$currentUser || $currentUser['role_id'] != $adminRoleId) {
+            App::getMessages()->addMessage(new Message("Brak uprawnień do wykonania tej operacji.", Message::ERROR));
+            App::getRouter()->redirectTo('home');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            // Walidacja
+            if (empty($email) || empty($newPassword) || empty($confirmPassword)) {
+                App::getMessages()->addMessage(new Message("Wszystkie pola są wymagane.", Message::ERROR));
+            } elseif ($newPassword !== $confirmPassword) {
+                App::getMessages()->addMessage(new Message("Nowe hasła muszą być zgodne.", Message::ERROR));
+            } elseif (strlen($newPassword) < 8) {
+                App::getMessages()->addMessage(new Message("Nowe hasło musi mieć co najmniej 8 znaków.", Message::ERROR));
+            } else {
+                // Pobranie użytkownika na podstawie adresu e-mail
+                $user = App::getDB()->get('uzytkownicy', ['id'], ['email' => $email]);
+
+                if (!$user) {
+                    App::getMessages()->addMessage(new Message("Nie znaleziono użytkownika o podanym adresie e-mail.", Message::ERROR));
+                } else {
+                    // Aktualizacja hasła użytkownika
+                    App::getDB()->update('uzytkownicy', [
+                        'haslo' => password_hash($newPassword, PASSWORD_DEFAULT)
+                    ], [
+                        'id' => $user['id']
+                    ]);
+
+                    App::getMessages()->addMessage(new Message("Hasło użytkownika zostało zmienione.", Message::INFO));
+                }
+            }
+        }
+
+        // Wyświetlenie formularza
+        App::getSmarty()->display('admin_change_password.tpl');
+    }
 
 }

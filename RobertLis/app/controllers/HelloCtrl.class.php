@@ -6,23 +6,31 @@ use core\App;
 use core\Message;
 use core\Utils;
 
-/**
- * HelloWorld built in Amelia - sample controller
- *
- * @author Przemysław Kudłacik
- */
+
 class HelloCtrl {
     
-    public function action_hello() {
-		        
-        $variable = 123;
-        
-        App::getMessages()->addMessage(new Message("Hello world message", Message::INFO));
-        Utils::addInfoMessage("Or even easier message :-)");
-        
-        App::getSmarty()->assign("value",$variable);        
-        App::getSmarty()->display("Hello.tpl");
-        
+      public function action_hello() {
+        $userId = $_SESSION['user']['id'] ?? null;
+        $userRoleId = $_SESSION['user']['role_id'] ?? null;
+
+        // Jeśli użytkownik nie jest zalogowany, ustaw puste dane
+        $recentTransactions = [];
+
+        // Pobierz ostatnie transakcje tylko dla zalogowanego użytkownika, który nie jest adminem
+        if ($userId && $userRoleId != 1) {
+            $recentTransactions = App::getDB()->select('transakcje', [
+                'data_transakcji', 'kategoria', 'kwota', 'typ'
+            ], [
+                'uzytkownik_id' => $userId,
+                'ORDER' => ['data_transakcji' => 'DESC'],
+                'LIMIT' => 3
+            ]);
+        }
+
+        // Przekazanie danych do widoku
+        App::getSmarty()->assign('recent_transactions', $recentTransactions);
+        App::getSmarty()->display('hello.tpl');
     }
-    
 }
+    
+

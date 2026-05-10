@@ -79,3 +79,25 @@ main {
 footer {
     font-size: 0.9rem;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
+.page-link {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    color: #555;
+    margin: 0 2px;
+    text-decoration: none;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.page-item:hover .page-link {
+    background-color: #e9ecef;
+}

@@ -36,46 +36,60 @@ class GoalsController {
                     'kwota_docelowa' => $targetAmount,
                     'aktualna_kwota' => 0.00,
                     'termin' => $deadline,
+                     'data_utworzenia' => date('Y-m-d H:i:s'),
                 ]);
                 App::getMessages()->addMessage(new Message("Cel został dodany.", Message::INFO));
             }
         }
 
         // Obsługa wpłaty do celu
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['goal_id'])) {
-            $goalId = intval($_POST['goal_id']);
-            $amount = floatval($_POST['amount']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['goal_id'])) {
+    $goalId = intval($_POST['goal_id']);
+    $amount = floatval($_POST['amount']);
 
-            if ($amount <= 0) {
-                App::getMessages()->addMessage(new Message("Kwota wpłaty musi być większa od 0.", Message::ERROR));
+    if ($amount <= 0) {
+        App::getMessages()->addMessage(new Message("Kwota wpłaty musi być większa od 0.", Message::ERROR));
+    } else {
+        try {
+            // Pobierz aktualne dane celu
+            $goal = App::getDB()->get('cele_oszczednosciowe', ['aktualna_kwota', 'kwota_docelowa'], [
+                'id' => $goalId,
+                'uzytkownik_id' => $userId
+            ]);
+
+            if (!$goal) {
+                App::getMessages()->addMessage(new Message("Cel nie istnieje lub brak dostępu.", Message::ERROR));
+            } elseif ($goal['aktualna_kwota'] + $amount > $goal['kwota_docelowa']) {
+                App::getMessages()->addMessage(new Message("Wpłata przekroczy kwotę docelową.", Message::ERROR));
             } else {
-                try {
-                    // Pobierz aktualne dane celu
-                    $goal = App::getDB()->get('cele_oszczednosciowe', ['aktualna_kwota', 'kwota_docelowa'], [
+                // Aktualizacja kwoty w tabeli
+                $newAmount = $goal['aktualna_kwota'] + $amount;
+                App::getDB()->update('cele_oszczednosciowe', [
+                    'aktualna_kwota' => $newAmount
+                ], [
+                    'id' => $goalId,
+                    'uzytkownik_id' => $userId
+                ]);
+
+                // Sprawdź, czy cel został osiągnięty
+                if ($newAmount >= $goal['kwota_docelowa']) {
+                    App::getMessages()->addMessage(new Message("Gratulacje! Cel został osiągnięty i usunięty.", Message::INFO));
+                    
+                    // Usuń cel z bazy danych
+                    App::getDB()->delete('cele_oszczednosciowe', [
                         'id' => $goalId,
                         'uzytkownik_id' => $userId
                     ]);
-
-                    if (!$goal) {
-                        App::getMessages()->addMessage(new Message("Cel nie istnieje lub brak dostępu.", Message::ERROR));
-                    } elseif ($goal['aktualna_kwota'] + $amount > $goal['kwota_docelowa']) {
-                        App::getMessages()->addMessage(new Message("Wpłata przekroczy kwotę docelową.", Message::ERROR));
-                    } else {
-                        // Aktualizacja kwoty w tabeli
-                        App::getDB()->update('cele_oszczednosciowe', [
-                            'aktualna_kwota[+]' => $amount
-                        ], [
-                            'id' => $goalId,
-                            'uzytkownik_id' => $userId
-                        ]);
-
-                        App::getMessages()->addMessage(new Message("Kwota została dodana do celu.", Message::INFO));
-                    }
-                } catch (\PDOException $e) {
-                    App::getMessages()->addMessage(new Message("Błąd bazy danych: " . $e->getMessage(), Message::ERROR));
+                } else {
+                    App::getMessages()->addMessage(new Message("Kwota została dodana do celu.", Message::INFO));
                 }
             }
+        } catch (\PDOException $e) {
+            App::getMessages()->addMessage(new Message("Błąd bazy danych: " . $e->getMessage(), Message::ERROR));
         }
+    }
+}
+
 
         // Pobranie istniejących celów użytkownika
         $goals = App::getDB()->select('cele_oszczednosciowe', '*', [

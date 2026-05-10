@@ -73,12 +73,57 @@ class UserControllers {
     App::getSmarty()->assign("email", $email);
     App::getSmarty()->display("login.tpl");
 }
+public function action_changePassword() {
+        $userId = $_SESSION['user']['id'] ?? null;
 
+        if (!$userId) {
+            App::getMessages()->addMessage(new Message("Nie jesteś zalogowany.", Message::ERROR));
+            App::getRouter()->redirectTo('login');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Pobieramy dane z formularza
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            // Walidacja danych
+            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                App::getMessages()->addMessage(new Message("Wszystkie pola są wymagane.", Message::ERROR));
+            } elseif ($newPassword !== $confirmPassword) {
+                App::getMessages()->addMessage(new Message("Nowe hasła muszą być zgodne.", Message::ERROR));
+            } elseif (strlen($newPassword) < 8) {
+                App::getMessages()->addMessage(new Message("Nowe hasło musi mieć co najmniej 8 znaków.", Message::ERROR));
+            } else {
+                // Pobranie aktualnego hasła użytkownika
+                $user = App::getDB()->get('uzytkownicy', ['haslo'], ['id' => $userId]);
+
+                if (!$user || !password_verify($currentPassword, $user['haslo'])) {
+                    App::getMessages()->addMessage(new Message("Obecne hasło jest nieprawidłowe.", Message::ERROR));
+                } else {
+                    // Aktualizacja hasła
+                    App::getDB()->update('uzytkownicy', [
+                        'haslo' => password_hash($newPassword, PASSWORD_DEFAULT)
+                    ], [
+                        'id' => $userId
+                    ]);
+
+                    App::getMessages()->addMessage(new Message("Hasło zostało zmienione.", Message::INFO));
+                    
+                }
+            }
+        }
+
+        // Wyświetlenie formularza
+        App::getSmarty()->display('change_password.tpl');
+    }
 public function action_logout() {
     session_start(); // Upewnij się, że sesja jest zainicjalizowana
     session_destroy(); // Usunięcie sesji
     App::getMessages()->addMessage(new \core\Message('Wylogowano pomyślnie.', \core\Message::INFO));
     App::getRouter()->redirectTo('home'); // Przekierowanie na stronę główną
 }
+
 }
 

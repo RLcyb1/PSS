@@ -1,0 +1,16 @@
+# Smarty cache
+templates_c/
+app/cache/
+
+# IDE
+.vscode/
+.idea/
+nbproject/
+
+# System
+Thumbs.db
+.DS_Store
+
+# Logi i tmp
+*.log
+*.tmp

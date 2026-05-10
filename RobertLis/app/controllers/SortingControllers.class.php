@@ -6,9 +6,7 @@ use core\App;
 use core\Message;
 use core\Utils;
 
-/**
- * Kontroler do sortowania transakcji
- */
+
 class SortingControllers {
     public function action_sorting() {
         $userId = $_SESSION['user']['id'] ?? null;
@@ -32,10 +30,17 @@ class SortingControllers {
             $conditions['typ'] = $filter['type'];
         }
         if (!empty($filter['category'])) {
-            $conditions['kategoria[~]'] = $filter['category']; // Wyszukiwanie częściowe
+            $conditions['kategoria[~]'] = $filter['category'];
         }
 
-        // Sortowanie
+        // Liczenie rekordów do paginacji
+        $total_records = App::getDB()->count("transakcje", $conditions);
+        $records_per_page = 10;
+        $total_pages = ceil($total_records / $records_per_page);
+        $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+        $offset = ($current_page - 1) * $records_per_page;
+
+        // Sortowanie 
         $order = ['data_transakcji' => 'DESC'];
         if ($filter['sort'] == 'data_transakcji_asc') {
             $order = ['data_transakcji' => 'ASC'];
@@ -48,12 +53,15 @@ class SortingControllers {
         // Pobranie przefiltrowanych i posortowanych transakcji
         $transactions = App::getDB()->select('transakcje', '*', [
             'AND' => $conditions,
-            'ORDER' => $order
+            'ORDER' => $order,
+            'LIMIT' => [$offset, $records_per_page]
         ]);
 
         // Przekazanie danych do widoku
         App::getSmarty()->assign('transactions', $transactions);
         App::getSmarty()->assign('filter', $filter);
+        App::getSmarty()->assign('current_page', $current_page);
+        App::getSmarty()->assign('total_pages', $total_pages);
         App::getSmarty()->display('sorting.tpl');
     }
 }
