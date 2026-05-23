@@ -5,3 +5,5 @@ Funkcjonalność stronicowania została zaimplementowana w kontrolerach Transact
 AJAX - zostało dodane dynamiczne dodawanie i usuwanie transakcji, zmodyfikowane zostały pliki - TransactionControllers.class.php, transactions.tpl oraz dodany widok transactionsTable.tpl oraz plik /public/js/functions.js
 
 CMS - instalacja oraz konfiguracja CMS made simple i  contentu "lorem ipsum"
+
+Szablon_strony
